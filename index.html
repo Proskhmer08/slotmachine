@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin & Win: AI-Enhanced Image Slots</title>
+    
+    <!-- Add this line to reference your favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/path/to/slot.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="path/to/slot.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="path/to/slot.png">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #2f3640;
+            color: #ffffff;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #slot-machine {
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #39ff14;
+            text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14, 0 0 30px #39ff14;
+            font-weight: bold;
+        }
+        #reels {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .reel {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #dcdde1;
+            margin: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #353b48;
+            border-radius: 10px;
+        }
+        #result {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            min-height: 3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .win-message {
+            color: #ff3af2;
+            font-weight: bold;
+        }
+        .reel img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        button {
+            background-color: #0097e6;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #00a8ff;
+        }
+        button:active {
+            transform: scale(0.95);
+            background-color: #0084c8;
+        }
+        .button-clicked {
+            animation: clickEffect 0.3s;
+        }
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #353b48;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 300px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .wallet-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 50px;
+            margin: 10px 0;
+            background-color: transparent;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .wallet-option:hover {
+            transform: scale(1.05);
+        }
+        .wallet-logo {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+        .rabby-logo {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .reel {
+                width: 100px;
+                height: 100px;
+            }
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+        #spin-counter {
+            font-size: 1rem;
+            margin-top: 1rem;
+            color: #dcdde1;
+        }
+        #win-counter {
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            color: #39ff14; /* Using the same green as the title for emphasis */
+        }
+    </style>
+</head>
+<body>
+    <div id="slot-machine">
+        <h1>Spin & Win: AI-Enhanced Image Slots</h1>
+        <div id="reels">
+            <div class="reel" id="reel1"></div>
+            <div class="reel" id="reel2"></div>
+            <div class="reel" id="reel3"></div>
+        </div>
+        <div id="result"></div>
+        <button id="spin-button">Spin</button>
+        <button id="connect-wallet">Connect Wallet</button>
+        <div id="spin-counter">Spins: 0</div>
+        <div id="win-counter">Winning: 0</div>
+    </div>
+
+    <!-- Updated modal HTML -->
+    <div id="connectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Connect Wallet</h2>
+            <button class="wallet-option" id="keplrWallet">
+                <img src="/path/to/Keplr_logo_ver.1.3_2 White.png" alt="Keplr Logo" class="wallet-logo">
+            </button>
+            <button class="wallet-option" id="rabbyWallet">
+                <img src="/path/to/rabby-logo.png" alt="Rabby Logo" class="wallet-logo rabby-logo">
+            </button>
+        </div>
+    </div>
+
+    <!-- Replace the external script with an inline script -->
+    <script>
+        const reels = document.querySelectorAll('.reel');
+        const spinButton = document.getElementById('spin-button');
+        const resultDisplay = document.getElementById('result');
+        const connectWalletButton = document.getElementById('connect-wallet');
+        const spinCounterDisplay = document.getElementById('spin-counter');
+        const winCounterDisplay = document.getElementById('win-counter');
+
+        let spinCount = 0;
+        let winCount = 0;
+
+        // Update the image paths to match the correct naming convention
+        const images = Array.from({length: 29}, (_, i) => `/path/to/Super_Agents/img${i + 1}.png`);
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+                img.src = src;
+            });
+        }
+
+        async function spin() {
+            spinCount++;
+            spinCounterDisplay.textContent = `Spins: ${spinCount}`;
+
+            const winProbability = 0.1; // 10% chance of winning
+            const isWin = Math.random() < winProbability;
+            
+            const firstImageIndex = Math.floor(Math.random() * images.length);
+            
+            for (const reel of reels) {
+                const imageIndex = isWin ? firstImageIndex : Math.floor(Math.random() * images.length);
+                const imageSrc = images[imageIndex];
+                try {
+                    const img = await loadImage(imageSrc);
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '100%';
+                    img.style.objectFit = 'contain';
+                    reel.innerHTML = '';
+                    reel.appendChild(img);
+                } catch (error) {
+                    console.error(error);
+                    reel.textContent = 'Error';
+                }
+            }
+
+            checkWin();
+        }
+
+        function checkWin() {
+            const results = Array.from(reels).map(reel => reel.querySelector('img')?.src);
+            if (results.every(src => src && src === results[0])) {
+                resultDisplay.textContent = 'Congratulations! You win!';
+                resultDisplay.classList.add('win-message');
+                winCount++;
+                winCounterDisplay.textContent = `Winning: ${winCount}`;
+            } else {
+                const loseMessages = [
+                    "Almost there! Give it another spin!",
+                    "So close! Try your luck again!",
+                    "Not quite, but don't give up!",
+                    "Keep spinning, your lucky spin is coming!",
+                    "No win this time, but the next spin could be the one!",
+                    "Don't lose heart, try again!",
+                    "You're building up to a big win, keep going!",
+                    "That was practice, now for the real deal!",
+                    "The slots are warming up, spin again!",
+                    "No match, but your persistence will pay off!"
+                ];
+                const randomMessage = loseMessages[Math.floor(Math.random() * loseMessages.length)];
+                resultDisplay.textContent = randomMessage;
+                resultDisplay.classList.remove('win-message');
+            }
+        }
+
+        // Updated event listener for the spin button
+        spinButton.addEventListener('click', () => {
+            console.log('Spin button clicked'); // Add this line for debugging
+            fetch('/spin', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Current clicks:', data.clickCount);
+                    // Update the spin count with the server's response
+                    spinCount = data.clickCount;
+                    spinCounterDisplay.textContent = `Spins: ${spinCount}`;
+                    // Call the spin function to update the UI
+                    spin();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // If there's an error with the API, still allow the UI to update
+                    spin();
+                });
+        });
+
+        connectWalletButton.addEventListener('click', () => {
+            console.log('Connecting wallet...');
+        });
+
+        // Initialize reels with placeholder or default image
+        async function initializeReels() {
+            const defaultImageSrc = images[0]; // Use the first image as default
+            for (const reel of reels) {
+                try {
+                    const img = await loadImage(defaultImageSrc);
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '100%';
+                    img.style.objectFit = 'contain';
+                    reel.innerHTML = '';
+                    reel.appendChild(img);
+                } catch (error) {
+                    console.error(error);
+                    reel.textContent = 'Error';
+                }
+            }
+        }
+
+        // Call initializeReels when the page loads
+        initializeReels();
+
+        // Initialize spin counter display
+        spinCounterDisplay.textContent = `Spins: ${spinCount}`;
+        winCounterDisplay.textContent = `Winning: ${winCount}`;
+
+        // Add this line at the end of the script for debugging
+        console.log('Script loaded, spin button:', spinButton);
+    </script>
+</body>
+</html>
